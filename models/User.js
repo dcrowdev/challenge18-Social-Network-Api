@@ -8,12 +8,12 @@ const userSchema = new Schema(
         },
         thoughts: [
             {
-
+                // references the Thought ObjectId
             },
         ],
         friends: [
             {
-    
+                // references the User ObjectId
             },
         ],
     },
