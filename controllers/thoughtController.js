@@ -5,7 +5,7 @@ const thoughtController = {
     getThoughts(req, res) {
         // use find() on your Thought model
         Thought.find()
-            .then((posts) => res.json(posts))
+            .then((thoughts) => res.json(thoughts))
             .catch((err) => res.status(500).json(err));
     },
     // get single thought by id

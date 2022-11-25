@@ -34,21 +34,74 @@ const userController = {
     // update a user
     updateUser(req, res) {
         // findOneAndUpdate
+        User.findOneAndUpdate(
+            { _id: req.params.userId },
+            { $set: req.body },
+            { runValidators: true, new: true }
+        )
+            .then((user) =>
+                !user
+                    ? res.status(404).json({ message: 'No user with that ID' })
+                    : res.json(user)
+            )
+            .catch((err) => res.status(500).json(err));
     },
     // delete user (BONUS: and delete associated thoughts)
     deleteUser(req, res) {
         // findOneAndDelete
+        User.findOneAndDelete({ _id: req.params.userId })
+            .then((user) => {
+                if (!user) {
+                    res.status(404).json({ message: 'No user with that ID' })
+                } else {
+                    Thought.deleteMany({ _id: { $in: user.thoughts } })
+                    res.status(200).res.json({ message: 'Successfully deleted User' })
+                }
+            })
+            .catch((err) => res.status(500).json(err));
     },
 
     // add friend to friend list
     addFriend(req, res) {
         // findOneAndUpdate
         // use $addToSet - reference activity 23, controllers/postController - check out hows it's being used in the createPost
+        User.findOneAndUpdate(
+            { _id: req.params.userId },
+            { $addToSet: { friends: req.params.friendId } },
+            { new: true }
+        )
+            .then((user) =>
+                !user
+                    ? res
+                        .status(404)
+                        .json({ message: 'No user with that ID' })
+                    : res.json('Added friend 🎉')
+            )
+            .catch((err) => {
+                console.log(err);
+                res.status(500).json(err);
+            });
     },
     // remove friend from friend list
     removeFriend(req, res) {
         // findOneAndUpdate
         // use $pull
+        User.findOneAndUpdate(
+            { _id: req.params.userId },
+            { $pull: { friends: req.params.friendId } },
+            { new: true }
+        )
+            .then((user) =>
+                !user
+                    ? res
+                        .status(404)
+                        .json({ message: 'No user with that ID' })
+                    : res.json('Removed friend 🎉')
+            )
+            .catch((err) => {
+                console.log(err);
+                res.status(500).json(err);
+            });
     }
 };
 
