@@ -2,18 +2,34 @@ const { User, Thought } = require('../models');
 
 const userController = {
     // get all users
-    getUsers(req, res){
+    getUsers(req, res) {
         //find() on User
+        User.find()
+            .then((users) => res.json(users))
+            .catch((err) => res.status(500).json(err));
     },
     // get single user by id
     getSingleUser(req, res) {
         // findOne() on User
         // use .populate to populate friends and thoughts for that User
         // ex: .populate('friends')
+        User.findOne({ _id: req.params.userId })
+            .select('-__v')
+            .populate('friends')
+            .populate('thoughts')
+            .then((user) =>
+                !user
+                    ? res.status(404).json({ message: 'No user with that ID' })
+                    : res.json(user)
+            )
+            .catch((err) => res.status(500).json(err));
     },
     // create a new user
     createUser(req, res) {
         // create on User
+        User.create(req.body)
+            .then((dbUserData) => res.json(dbUserData))
+            .catch((err) => res.status(500).json(err));
     },
     // update a user
     updateUser(req, res) {
