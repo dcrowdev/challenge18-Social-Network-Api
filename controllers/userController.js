@@ -5,6 +5,7 @@ const userController = {
     getUsers(req, res) {
         //find() on User
         User.find()
+            .select('-__v')
             .then((users) => res.json(users))
             .catch((err) => res.status(500).json(err));
     },

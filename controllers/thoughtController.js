@@ -5,7 +5,9 @@ const thoughtController = {
     getThoughts(req, res) {
         // use find() on your Thought model
         Thought.find()
-            .then((thoughts) => { console.log(thoughts); res.json(thoughts)})
+            .sort({createdAt: -1})
+            .select('-__v')
+            .then((thoughts) => res.json(thoughts))
             .catch((err) => res.status(500).json({err, message: "error"}));
     },
     // get single thought by id
@@ -13,11 +15,11 @@ const thoughtController = {
         // findOne() on Thought model
         Thought.findOne({ _id: req.params.thoughtId })
             .select('-__v')
-            // .populate('reactions')
+            .populate('reactions')
             .then((thought) =>
                 !thought
-                    ? res.status(404).json({ message: 'No post with that ID' })
-                    : res.json(post)
+                    ? res.status(404).json({ message: 'No thought with that ID' })
+                    : res.json(thought)
             )
             .catch((err) => res.status(500).json(err));
     },
@@ -62,17 +64,58 @@ const thoughtController = {
     // delete thought
     deleteThought(req, res) {
         // findOneAndRemove() on Thought model
+        Thought.findOneAndDelete({ _id: req.params.thoughtId })
+            .then((thought) => {
+                if (!thought) {
+                    res.status(404).json({ message: 'No thought with that ID' })
+                } else {
+                    res.status(200).res.json({ message: 'Successfully deleted Thought' })
+                }
+            })
+            .catch((err) => res.status(500).json(err));
     },
 
     // add a reaction to a thought
     addReaction(req, res) {
         // findOneAndUpdate
         // use $addToSet - reference activity 23, controllers/postController - check out hows it's being used in the createPost
+        Thought.findOneAndUpdate(
+            { _id: req.params.thoughtId },
+            { $addToSet: { reactions: { reactionBody: req.body.content, username: req.body.username } } },
+            { new: true }
+        )
+            .then((reaction) =>
+                !reaction
+                    ? res
+                        .status(404)
+                        .json({ message: 'No user with that ID' })
+                    : res.json('Added reaction 🎉')
+            )
+            .catch((err) => {
+                console.log(err);
+                res.status(500).json(err);
+            });
     },
     // remove reaction from a thought
     removeReaction(req, res) {
         // findOneAndUpdate
         // use $pull
+        Thought.findOneAndUpdate(
+            { _id: req.params.thoughtId },
+            { $pull: { reactions: { _id: req.params.reactionId } } },
+            { new: true }
+        )
+            .then((thought) =>
+                !thought
+                    ? res
+                        .status(404)
+                        .json({ message: 'No user with that ID' })
+                    : res.json('Deleted reaction 🎉')
+            )
+            .catch((err) => {
+                console.log(err);
+                res.status(500).json(err);
+            });
     }
 };
 

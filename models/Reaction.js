@@ -1,6 +1,5 @@
-const { ObjectId } = require('mongodb');
-const { Schema, model } = require('mongoose');
-const dateFormat = require('../utils/dateFormat');
+const { Schema, Types } = require('mongoose');
+const { dateFormat } = require('../utils/dateFormat');
 
 const reactionSchema = new Schema(
     {
@@ -19,7 +18,7 @@ const reactionSchema = new Schema(
         },
         createdAt: {
             type: Date,
-            default: Date.now(),
+            default: Date.now,
             get: (date) => {
                 return dateFormat(date);
             }
