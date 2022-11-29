@@ -49,7 +49,7 @@ const thoughtController = {
     // update thought
     updateThought(req, res) {
         // findOneAndUpdate() on Thought model
-        User.findOneAndUpdate(
+        Thought.findOneAndUpdate(
             { _id: req.params.thoughtId },
             { $set: req.body },
             { runValidators: true, new: true }
@@ -57,7 +57,7 @@ const thoughtController = {
             .then((thought) =>
                 !thought
                     ? res.status(404).json({ message: 'No thought with that ID' })
-                    : res.json(user)
+                    : res.json(thought)
             )
             .catch((err) => res.status(500).json(err));
     },
@@ -69,7 +69,7 @@ const thoughtController = {
                 if (!thought) {
                     res.status(404).json({ message: 'No thought with that ID' })
                 } else {
-                    res.status(200).res.json({ message: 'Successfully deleted Thought' })
+                    res.status(200).json({ message: 'Successfully deleted Thought' })
                 }
             })
             .catch((err) => res.status(500).json(err));
@@ -81,7 +81,7 @@ const thoughtController = {
         // use $addToSet - reference activity 23, controllers/postController - check out hows it's being used in the createPost
         Thought.findOneAndUpdate(
             { _id: req.params.thoughtId },
-            { $addToSet: { reactions: { reactionBody: req.body.content, username: req.body.username } } },
+            { $addToSet: { reactions: { reactionBody: req.body.reactionBody, username: req.body.username } } },
             { new: true }
         )
             .then((reaction) =>
